@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARE INEP - Sistema de Análise da Rede Escolar</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Importando o Chart.js para o gráfico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>SARE INEP</h1>
+        <p>Sistema de Análise da Rede Escolar - Inclusão Digital</p>
+    </header>
+
+    <!-- Área do Dashboard (Formulário e Importação) -->
+    <div class="dashboard">
+        <!-- Formulário de Cadastro/Edição -->
+        <div class="card">
+            <h2 id="form-title">Cadastrar Nova Escola</h2>
+            <form id="escola-form">
+                <input type="hidden" id="escola-id">
+
+                <div class="form-group">
+                    <label>Código da Escola (8 dígitos)</label>
+                    <input type="number" id="codigo" minlength="8" maxlength="8" required placeholder="Ex: 11022558">
+                </div>
+                <div class="form-group">
+                    <label>Nome da Escola</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label>UF</label>
+                    <select id="uf" required onchange="carregarMunicipios()">
+                        <option value="">Selecione...</option>
+                        <option value="AC">Acre</option>
+                        <option value="AL">Alagoas</option>
+                        <option value="AP">Amapá</option>
+                        <option value="AM">Amazonas</option>
+                        <option value="BA">Bahia</option>
+                        <option value="CE">Ceará</option>
+                        <option value="DF">Distrito Federal</option>
+                        <option value="ES">Espírito Santo</option>
+                        <option value="GO">Goiás</option>
+                        <option value="MA">Maranhão</option>
+                        <option value="MT">Mato Grosso</option>
+                        <option value="MS">Mato Grosso do Sul</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="PA">Pará</option>
+                        <option value="PB">Paraíba</option>
+                        <option value="PR">Paraná</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="PI">Piauí</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="RN">Rio Grande do Norte</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="RO">Rondônia</option>
+                        <option value="RR">Roraima</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="SE">Sergipe</option>
+                        <option value="TO">Tocantins</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Município</label>
+                    <select id="municipio" required disabled>
+                        <option value="">Selecione a UF primeiro...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rede de Ensino</label>
+                    <select id="rede">
+                        <option value="Pública">Pública</option>
+                        <option value="Privada">Privada</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; gap: 20px;">
+                    <label><input type="checkbox" id="computador"> Possui Computador</label>
+                    <label><input type="checkbox" id="internet"> Possui Internet</label>
+                </div>
+
+                <button type="submit" class="btn-primary" id="btn-salvar">Salvar Escola</button>
+                <button type="button" class="btn-danger" id="btn-cancelar" style="display: none; width: 100%; margin-top: 10px;" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+
+        <!-- Área de Importação -->
+        <div class="card">
+            <h2>Importar Dados do Censo (CSV)</h2>
+            <div class="import-area">
+                <p>Selecione o arquivo <strong>Tabela_Escola_2025.csv</strong> baixado do Inep.</p>
+                <input type="file" id="file-input" accept=".csv">
+                <button class="btn-success" onclick="importarArquivo()">Fazer Upload do Arquivo</button>
+                <p id="import-status" style="font-weight: bold; color: #3b82f6;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card" style="margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1;">
+            <label>Filtrar por UF</label>
+            <input type="text" id="filtro-uf" placeholder="Ex: SP">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>Filtrar por Rede</label>
+            <select id="filtro-rede">
+                <option value="">Todas</option>
+                <option value="Pública">Pública</option>
+                <option value="Privada">Privada</option>
+            </select>
+        </div>
+        <button class="btn-primary" style="width: auto; padding: 10px 30px;" onclick="aplicarFiltros()">Filtrar</button>
+        <button class="btn-success" style="width: auto; padding: 10px 30px;" onclick="carregarEscolas()">Limpar Filtros</button>
+    </div>
+
+    <!-- Tabela de Dados -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código INEP</th>
+                <th>Nome</th>
+                <th>UF</th>
+                <th>Município</th>
+                <th>Rede</th>
+                <th>Computador</th>
+                <th>Internet</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-escolas">
+            <!-- O JavaScript vai preencher aqui -->
+            </tbody>
+        </table>
+
+        <!-- Paginação -->
+        <div id="paginacao" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+            <button id="btn-anterior" class="btn-primary" style="width: auto;" onclick="paginaAnterior()">Anterior</button>
+            <span id="info-pagina" style="font-weight: bold; color: #4b5563;">Página 1</span>
+            <button id="btn-proxima" class="btn-primary" style="width: auto;" onclick="proximaPagina()">Próxima</button>
+        </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="chart-container">
+        <canvas id="grafico-inclusao"></canvas>
+    </div>
+
+</div>
+
+<!-- Notificação -->
+<div id="toast" class="toast">Mensagem</div>
+
+<!-- Script JS -->
+<script src="js/script.js"></script>
+</body>
+</html>
