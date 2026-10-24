@@ -11,7 +11,7 @@ O objetivo central do sistema é importar, tratar, armazenar e analisar os micro
 *   [Gabriel Reinaldo de Chagas de Medeiros] 
 *   [Yan Kevin de Sousa Costa] 
 
-## T ecnologias Utilizadas
+## Tecnologias Utilizadas
 *   **Back-end:** Java 17, Spring Boot, Spring Data JPA
 *   **Banco de Dados:** PostgreSQL (hospedado no Neon Tech)
 *   **Front-end:** HTML5, CSS3, JavaScript Puro (Vanilla)
